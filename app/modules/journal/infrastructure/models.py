@@ -62,7 +62,10 @@ class JournalEntry(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     memo: Mapped[str | None] = mapped_column(String(1000))
 
     status: Mapped[JournalStatus] = mapped_column(
-        _JOURNAL_STATUS, nullable=False, default=JournalStatus.DRAFT
+        _JOURNAL_STATUS,
+        nullable=False,
+        default=JournalStatus.DRAFT,
+        server_default=text("'DRAFT'"),
     )
 
     idempotency_key: Mapped[str | None] = mapped_column(String(255))

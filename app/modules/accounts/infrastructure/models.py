@@ -13,6 +13,7 @@ from sqlalchemy import (
     Index,
     String,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -73,8 +74,12 @@ class Account(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     parent_account_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("chart_of_accounts.id", ondelete="RESTRICT")
     )
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    is_postable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("true")
+    )
+    is_postable: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("true")
+    )
     description: Mapped[str | None] = mapped_column(String(500))
 
     company: Mapped[Company] = relationship(back_populates="accounts", lazy="noload")

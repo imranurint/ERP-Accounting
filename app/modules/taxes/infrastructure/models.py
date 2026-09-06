@@ -20,6 +20,7 @@ from sqlalchemy import (
     Index,
     String,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -46,7 +47,9 @@ class TaxCode(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
     effective_from: Mapped[date] = mapped_column(Date, nullable=False)
     effective_to: Mapped[date | None] = mapped_column(Date)
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("true")
+    )
 
     __table_args__ = (
         UniqueConstraint("company_id", "tax_code", name="uq_tax_codes_company_code"),

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, String
+from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -24,8 +24,12 @@ class Currency(Base, TimestampMixin):
 
     currency_code: Mapped[str] = mapped_column(String(3), primary_key=True)
     currency_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    decimal_places: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    decimal_places: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=2, server_default=text("2")
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("true")
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -51,8 +55,12 @@ class Company(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         ForeignKey("currencies.currency_code", ondelete="RESTRICT"),
         nullable=False,
     )
-    timezone: Mapped[str] = mapped_column(String(64), nullable=False, default="UTC")
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    timezone: Mapped[str] = mapped_column(
+        String(64), nullable=False, default="UTC", server_default=text("'UTC'")
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("true")
+    )
 
     base_currency: Mapped[Currency] = relationship(lazy="joined")
     accounts: Mapped[list[Account]] = relationship(

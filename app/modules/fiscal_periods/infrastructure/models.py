@@ -54,10 +54,13 @@ class FiscalPeriod(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         ),
         nullable=False,
         default=FiscalPeriodStatus.OPEN,
+        server_default=text("'OPEN'"),
     )
     #: Denormalised convenience flag kept in step with `status` by the service
     #: layer and guarded by a CHECK constraint so the two cannot diverge.
-    is_closed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_closed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=text("false")
+    )
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     closed_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
