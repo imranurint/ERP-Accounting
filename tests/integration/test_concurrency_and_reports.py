@@ -11,17 +11,17 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.application.journal.commands import (
+from app.modules.journal.application.commands import (
     ActorContext,
     CreateJournalCommand,
     JournalLineCommand,
 )
-from app.application.journal.posting_service import JournalPostingService
-from app.application.reports.schemas import ReportQuery
-from app.application.reports.service import ReportService
-from app.domain.accounting.enums import AccountType
-from app.infrastructure.database.models.journal import JournalEntry
-from app.infrastructure.database.unit_of_work import UnitOfWork
+from app.modules.journal.application.posting_service import JournalPostingService
+from app.modules.journal.infrastructure.models import JournalEntry
+from app.modules.reports.application.schemas import ReportQuery
+from app.modules.reports.application.service import ReportService
+from app.shared.domain.enums import AccountType
+from app.shared.unit_of_work.unit_of_work import UnitOfWork
 from tests.factories import DemoData
 
 pytestmark = [pytest.mark.integration, pytest.mark.asyncio]

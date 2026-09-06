@@ -20,7 +20,7 @@
 ```
 
 Implemented as data in
-[`app/domain/accounting/rules.py`](../app/domain/accounting/rules.py):
+[`app/shared/domain/rules.py`](../app/shared/domain/rules.py):
 
 ```python
 _ALLOWED_JOURNAL_TRANSITIONS = {

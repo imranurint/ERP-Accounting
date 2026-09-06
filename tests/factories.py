@@ -20,30 +20,30 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password
-from app.domain.accounting.enums import AccountType, FiscalPeriodStatus, NormalBalance
-from app.domain.identity.permissions import (
+from app.modules.accounts.infrastructure.models import Account
+from app.modules.fiscal_periods.infrastructure.models import FiscalPeriod
+from app.modules.identity.domain.permissions import (
     DEFAULT_ROLE_PERMISSIONS,
     PERMISSION_DESCRIPTIONS,
     Permission,
     Role,
 )
-from app.infrastructure.database.models.account import Account
-from app.infrastructure.database.models.fiscal_period import FiscalPeriod
-from app.infrastructure.database.models.identity import (
+from app.modules.identity.infrastructure.models import (
     Permission as PermissionModel,
 )
-from app.infrastructure.database.models.identity import (
+from app.modules.identity.infrastructure.models import (
     Role as RoleModel,
 )
-from app.infrastructure.database.models.identity import (
+from app.modules.identity.infrastructure.models import (
     User,
 )
-from app.infrastructure.database.models.organization import Company, Currency
-from app.infrastructure.database.models.tax_code import TaxCode
+from app.modules.organization.infrastructure.models import Company, Currency
+from app.modules.taxes.infrastructure.models import TaxCode
+from app.shared.domain.enums import AccountType, FiscalPeriodStatus, NormalBalance
 
 TEST_PASSWORD = "correct-horse-battery-staple-42"
 
-#: The seeded chart used by the tests, matching `app.scripts.seed`.
+#: The seeded chart used by the tests, matching `scripts.seed`.
 ACCOUNTS: list[tuple[str, str, AccountType, NormalBalance, bool]] = [
     ("100", "Current Assets", AccountType.ASSET, NormalBalance.DEBIT, False),
     ("101", "Bank Account", AccountType.ASSET, NormalBalance.DEBIT, True),

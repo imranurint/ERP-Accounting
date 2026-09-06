@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from httpx import AsyncClient
 
-from app.domain.identity.permissions import Role
+from app.modules.identity.domain.permissions import Role
 from tests.factories import TEST_PASSWORD, DemoData, invoice_payload
 
 pytestmark = [pytest.mark.api, pytest.mark.asyncio]

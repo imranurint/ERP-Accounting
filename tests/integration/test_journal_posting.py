@@ -12,7 +12,7 @@ from decimal import Decimal
 import pytest
 from sqlalchemy import select
 
-from app.application.journal.commands import (
+from app.modules.journal.application.commands import (
     ActorContext,
     CreateJournalCommand,
     JournalLineCommand,
@@ -20,14 +20,16 @@ from app.application.journal.commands import (
     ReverseJournalCommand,
     VoidJournalCommand,
 )
-from app.application.journal.posting_service import JournalPostingService
-from app.application.journal.reversal_service import JournalReversalService
-from app.application.journal.schemas import JournalEntryUpdate
-from app.application.journal.service import JournalService
-from app.application.reports.schemas import ReportQuery
-from app.application.reports.service import ReportService
-from app.domain.accounting.enums import FiscalPeriodStatus, JournalStatus
-from app.domain.accounting.exceptions import (
+from app.modules.journal.application.posting_service import JournalPostingService
+from app.modules.journal.application.reversal_service import JournalReversalService
+from app.modules.journal.application.schemas import JournalEntryUpdate
+from app.modules.journal.application.service import JournalService
+from app.modules.journal.infrastructure.models import JournalEntry
+from app.modules.reports.application.schemas import ReportQuery
+from app.modules.reports.application.service import ReportService
+from app.shared.audit.models import AuditLog
+from app.shared.domain.enums import FiscalPeriodStatus, JournalStatus
+from app.shared.domain.exceptions import (
     DuplicateIdempotencyKeyError,
     FiscalPeriodClosedError,
     InvalidJournalLineError,
@@ -36,9 +38,7 @@ from app.domain.accounting.exceptions import (
     PostedEntryCannotBeModifiedError,
     UnbalancedJournalEntryError,
 )
-from app.infrastructure.database.models.audit import AuditLog
-from app.infrastructure.database.models.journal import JournalEntry
-from app.infrastructure.outbox.models import OutboxEvent
+from app.shared.outbox.models import OutboxEvent
 from tests.factories import DemoData, set_account_active, set_period_status
 
 pytestmark = [pytest.mark.integration, pytest.mark.asyncio]
@@ -196,7 +196,7 @@ class TestValidationRejections:
             await JournalPostingService(uow).create(command)
 
     async def test_posting_to_a_non_postable_account_is_rejected(self, uow, demo: DemoData) -> None:
-        from app.domain.accounting.exceptions import AccountNotPostableError
+        from app.shared.domain.exceptions import AccountNotPostableError
 
         command = invoice_command(demo, idempotency_key=None)
         command.lines[0].account_number = "100"  # roll-up parent
@@ -205,7 +205,7 @@ class TestValidationRejections:
             await JournalPostingService(uow).create(command)
 
     async def test_posting_to_an_inactive_account_is_rejected(self, uow, demo: DemoData) -> None:
-        from app.domain.accounting.exceptions import AccountInactiveError
+        from app.shared.domain.exceptions import AccountInactiveError
 
         await set_account_active(uow.session, demo.account("101").id, active=False)
 
@@ -213,7 +213,7 @@ class TestValidationRejections:
             await JournalPostingService(uow).create(invoice_command(demo, idempotency_key=None))
 
     async def test_entry_date_outside_the_period_is_rejected(self, uow, demo: DemoData) -> None:
-        from app.domain.accounting.exceptions import FiscalPeriodNotFoundForDateError
+        from app.shared.domain.exceptions import FiscalPeriodNotFoundForDateError
 
         command = invoice_command(demo, idempotency_key=None, entry_date=date(2026, 4, 1))
         # period_id still points at March.
@@ -342,7 +342,7 @@ class TestImmutability:
         assert await _entry_count(uow, demo) == 1
 
     async def test_posted_entry_cannot_be_voided(self, uow, demo: DemoData) -> None:
-        from app.domain.accounting.exceptions import InvalidJournalStateError
+        from app.shared.domain.exceptions import InvalidJournalStateError
 
         entry = await JournalPostingService(uow).create(invoice_command(demo))
         with pytest.raises(InvalidJournalStateError):
@@ -511,7 +511,7 @@ class TestReversal:
 # ---------------------------------------------------------------------------
 class TestLedgerRebuild:
     async def test_rebuild_reproduces_the_same_balances(self, uow, demo: DemoData) -> None:
-        from app.scripts.rebuild_ledger import rebuild_company
+        from scripts.rebuild_ledger import rebuild_company
 
         service = JournalPostingService(uow)
         for index in range(5):
@@ -544,7 +544,7 @@ class TestLedgerRebuild:
         assert after == before
 
     async def test_rebuild_repairs_a_corrupted_projection(self, uow, demo: DemoData) -> None:
-        from app.scripts.rebuild_ledger import rebuild_company
+        from scripts.rebuild_ledger import rebuild_company
 
         await JournalPostingService(uow).create(invoice_command(demo))
 
@@ -567,7 +567,7 @@ class TestLedgerRebuild:
         assert repaired.closing_balance == Decimal("115.0000")
 
     async def test_rebuild_includes_reversed_entries(self, uow, demo: DemoData) -> None:
-        from app.scripts.rebuild_ledger import rebuild_company
+        from scripts.rebuild_ledger import rebuild_company
 
         original = await JournalPostingService(uow).create(invoice_command(demo))
         await JournalReversalService(uow).reverse(

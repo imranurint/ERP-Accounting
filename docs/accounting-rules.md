@@ -5,7 +5,7 @@ enforced again in the schema. The application check gives a good error message;
 the constraint makes the bad state impossible. For financial data that
 redundancy is worth the cost.
 
-Pure rule implementations: [`app/domain/accounting/rules.py`](../app/domain/accounting/rules.py).
+Pure rule implementations: [`app/shared/domain/rules.py`](../app/shared/domain/rules.py).
 Unit tests: [`tests/unit/test_accounting_rules.py`](../tests/unit/test_accounting_rules.py).
 
 ---
@@ -278,9 +278,9 @@ and the key itself are excluded for the same reason.
 cache, and any cache must be reconstructible:
 
 ```bash
-python -m app.scripts.rebuild_ledger --company-id <uuid>
-python -m app.scripts.rebuild_ledger --all --verify
-python -m app.scripts.rebuild_ledger --all --dry-run
+python -m scripts.rebuild_ledger --company-id <uuid>
+python -m scripts.rebuild_ledger --all --verify
+python -m scripts.rebuild_ledger --all --dry-run
 ```
 
 The rebuild clears the projection for a company, re-reads every ledger-

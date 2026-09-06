@@ -347,7 +347,7 @@ curl -s "$BASE/reports/account-balances?company_id=$CO&period_id=$PE" -H "$AUTH"
 
 Returns `"projection_matches_journals": true` when `ledger_balances` agrees
 with the journals. If it is ever `false`, run
-`python -m app.scripts.rebuild_ledger`.
+`python -m scripts.rebuild_ledger`.
 
 ### CSV export
 

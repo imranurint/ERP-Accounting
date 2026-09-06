@@ -55,16 +55,16 @@ revision: ## Autogenerate a migration: make revision m="add x"
 
 .PHONY: seed
 seed: ## Seed demo company, accounts, periods and users
-	$(RUN) python -m app.scripts.seed
+	$(RUN) python -m scripts.seed
 
 .PHONY: create-admin
 create-admin: ## Create the first admin: make create-admin email=a@b.com
 	@test -n "$(email)" || (echo 'usage: make create-admin email=admin@example.com'; exit 1)
-	$(RUN) python -m app.scripts.create_admin --email "$(email)"
+	$(RUN) python -m scripts.create_admin --email "$(email)"
 
 .PHONY: rebuild-ledger
 rebuild-ledger: ## Rebuild ledger_balances from the journals (all companies)
-	$(RUN) python -m app.scripts.rebuild_ledger --all --verify
+	$(RUN) python -m scripts.rebuild_ledger --all --verify
 
 # ----------------------------------------------------------------------- run
 .PHONY: run

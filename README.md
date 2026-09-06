@@ -53,7 +53,7 @@ One atomic database transaction
 | No lost ledger updates under concurrency | `INSERT ... ON CONFLICT DO UPDATE`, never read-modify-write |
 | Journal numbers are unique and gap-tolerant | One atomic upsert on `document_sequences` |
 | Retries never double-post | `Idempotency-Key` + a partial unique index + a payload hash |
-| The ledger can always be re-derived | `python -m app.scripts.rebuild_ledger` |
+| The ledger can always be re-derived | `python -m scripts.rebuild_ledger` |
 | Money is never a float | `Decimal` in Python, `NUMERIC(19,4)` in PostgreSQL, strings on the wire |
 
 ---
@@ -81,7 +81,7 @@ cp .env.example .env
 python -c "import secrets; print(f'SECRET_KEY={secrets.token_urlsafe(64)}')" >> .env
 
 make docker-up          # postgres + redis + migrations + api
-docker compose exec api python -m app.scripts.seed
+docker compose exec api python -m scripts.seed
 ```
 
 Then open <http://localhost:8000/docs> (Swagger) or
@@ -212,7 +212,7 @@ them would prove nothing.
 
 ```bash
 make rebuild-ledger     # recompute ledger_balances from the journals, verifying
-python -m app.scripts.rebuild_ledger --company-id <uuid> --dry-run
+python -m scripts.rebuild_ledger --company-id <uuid> --dry-run
 ```
 
 `ledger_balances` is a cache. `journal_entries` + `journal_items` are the

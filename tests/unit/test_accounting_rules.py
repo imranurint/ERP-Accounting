@@ -12,8 +12,8 @@ from uuid import uuid4
 import pytest
 
 from app.core.ids import uuid7
-from app.domain.accounting import rules, services
-from app.domain.accounting.entities import (
+from app.shared.domain import rules, services
+from app.shared.domain.entities import (
     Account,
     Currency,
     FiscalPeriod,
@@ -21,13 +21,13 @@ from app.domain.accounting.entities import (
     JournalLine,
     TaxCode,
 )
-from app.domain.accounting.enums import (
+from app.shared.domain.enums import (
     AccountType,
     FiscalPeriodStatus,
     JournalStatus,
     NormalBalance,
 )
-from app.domain.accounting.exceptions import (
+from app.shared.domain.exceptions import (
     AccountInactiveError,
     AccountNotPostableError,
     CrossCompanyReferenceError,
@@ -43,7 +43,7 @@ from app.domain.accounting.exceptions import (
     TaxCodeInactiveError,
     UnbalancedJournalEntryError,
 )
-from app.domain.accounting.value_objects import DebitCredit
+from app.shared.domain.value_objects import DebitCredit
 
 pytestmark = pytest.mark.unit
 

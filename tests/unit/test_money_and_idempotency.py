@@ -7,7 +7,6 @@ from uuid import UUID
 
 import pytest
 
-from app.core.idempotency import canonical_payload, payload_hash
 from app.core.ids import uuid7, uuid7_timestamp_ms
 from app.core.money import (
     MoneyError,
@@ -18,8 +17,9 @@ from app.core.money import (
     to_decimal,
     within_storage_range,
 )
-from app.domain.identity.entities import AuthenticatedUser
-from app.domain.identity.permissions import DEFAULT_ROLE_PERMISSIONS, Permission, Role
+from app.modules.identity.domain.entities import AuthenticatedUser
+from app.modules.identity.domain.permissions import DEFAULT_ROLE_PERMISSIONS, Permission, Role
+from app.shared.idempotency.service import canonical_payload, payload_hash
 
 pytestmark = pytest.mark.unit
 

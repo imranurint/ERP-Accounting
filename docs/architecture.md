@@ -37,14 +37,59 @@ Dependencies point inward. The domain knows nothing about anything else.
 │ domain/       entities, value objects, rules, events       │
 │               pure Python — no SQLAlchemy, no FastAPI      │
 ├────────────────────────────────────────────────────────────┤
-│ infrastructure/  ORM models, repositories, UoW, cache,     │
-│                  outbox, observability                     │
+│ infrastructure/  ORM models and repositories               │
 └────────────────────────────────────────────────────────────┘
 ```
 
-**Why the domain is framework-free.** `app/domain/accounting/rules.py`
-contains every accounting invariant as a pure function. It imports no ORM and
-touches no I/O, so the entire rule set is unit-testable in milliseconds
+Those layers repeat *inside each module*, so a module is a vertical slice
+rather than a quarter of four horizontal ones:
+
+```text
+app/
+├── main.py · api.py · health.py
+├── core/            config · security · money · ids · pagination
+│                    exceptions · middleware · dependencies
+├── shared/
+│   ├── domain/      the ledger kernel — entities, enums, rules,
+│   │                value objects, events, exceptions
+│   └── …            database · unit_of_work · audit · outbox · sequences
+│                    cache · idempotency · observability
+└── modules/         each: application/ infrastructure/ api/
+    ├── identity/        users, roles, permissions, refresh tokens
+    ├── organization/    companies and currencies
+    ├── accounts/        the chart of accounts
+    ├── fiscal_periods/  periods and their state machine
+    ├── taxes/           tax codes
+    ├── journal/         journal entries, items, the ledger projection
+    └── reports/         trial balance, P&L, balance sheet, general ledger
+```
+
+This is the same layout as the sibling [`../Core`](../../Core) and
+[`../HRM`](../../HRM) modules, so a developer moving between the three ERP
+services finds the same file in the same place.
+
+**Why the domain is a shared kernel, not one per module.** In Core and HRM each
+module owns its own `domain/`, because leave rules genuinely never touch
+payroll rules. A general ledger is not like that. Posting a single journal
+entry validates the entry's balance, the account's postability, the period's
+status and the tax code's validity **in one breath**:
+
+```python
+validate_balanced(entry)
+validate_account_usable(account, company_id, line_number)
+validate_period_accepts_posting(period)
+validate_tax_code_usable(tax_code, ...)
+```
+
+Those four live together in `app/shared/domain/rules.py` because they *are* one
+rule set — the double-entry bookkeeping model — and splitting them across four
+modules would scatter one cohesive surface and make `journal` import the
+private domain of three siblings. The ledger is a single bounded context, so it
+gets a single domain package that every module reads.
+
+**Why the domain is framework-free.** `app/shared/domain/rules.py` contains
+every accounting invariant as a pure function. It imports no ORM and touches no
+I/O, so the entire rule set is unit-testable in milliseconds
 (`tests/unit/test_accounting_rules.py` runs with no database at all), and the
 rules can be read as accounting rather than as SQLAlchemy.
 
@@ -79,13 +124,13 @@ No module may update `ledger_balances`. No module may insert a `POSTED`
 journal entry. Both rules are enforced structurally:
 
 * `LedgerRepository.apply_movements` is called from exactly two places, both
-  inside `app/application/journal/` (posting and reversal);
+  inside `app/modules/journal/application/` (posting and reversal);
 * `journal_entries` has a CHECK constraint requiring `entry_number` and
   `posted_at` on any `POSTED`/`REVERSED` row, and numbers only come from
   `DocumentSequenceRepository` inside the posting transaction.
 
 A module integrating with the GL builds a `CreateJournalCommand` (see
-`app/application/journal/commands.py`) and calls `create()`. That command is
+`app/modules/journal/application/commands.py`) and calls `create()`. That command is
 the stable contract — the HTTP layer is just one caller of it, and an
 in-process Payroll module calls the same code path with no HTTP hop.
 
@@ -192,7 +237,7 @@ rollup, maintained inside the posting transaction so it is never stale, and
 fully re-derivable:
 
 ```bash
-python -m app.scripts.rebuild_ledger --all --verify
+python -m scripts.rebuild_ledger --all --verify
 ```
 
 The rebuild reads every `POSTED`/`REVERSED` entry, recomputes, and compares.

@@ -45,8 +45,12 @@ def upgrade() -> None:
         sa.Column("currency_name", sa.String(100), nullable=False),
         sa.Column("decimal_places", sa.Integer(), nullable=False, server_default="2"),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint("currency_code", name="pk_currencies"),
         sa.CheckConstraint(
             "currency_code = upper(currency_code) AND length(currency_code) = 3",
@@ -68,8 +72,12 @@ def upgrade() -> None:
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("is_superuser", sa.Boolean(), nullable=False, server_default=sa.false()),
         sa.Column("last_login_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_users"),
         sa.UniqueConstraint("email", name="uq_users_email"),
     )
@@ -81,8 +89,12 @@ def upgrade() -> None:
         sa.Column("name", sa.String(64), nullable=False),
         sa.Column("description", sa.String(255), nullable=True),
         sa.Column("is_system", sa.Boolean(), nullable=False, server_default=sa.false()),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_roles"),
         sa.UniqueConstraint("name", name="uq_roles_name"),
     )
@@ -92,8 +104,12 @@ def upgrade() -> None:
         sa.Column("id", UUID, nullable=False),
         sa.Column("code", sa.String(64), nullable=False),
         sa.Column("description", sa.String(255), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_permissions"),
         sa.UniqueConstraint("code", name="uq_permissions_code"),
     )
@@ -102,8 +118,12 @@ def upgrade() -> None:
         "user_roles",
         sa.Column("user_id", UUID, nullable=False),
         sa.Column("role_id", UUID, nullable=False),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name="fk_user_roles_user_id_users", ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["role_id"], ["roles.id"], name="fk_user_roles_role_id_roles", ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], name="fk_user_roles_user_id_users", ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["role_id"], ["roles.id"], name="fk_user_roles_role_id_roles", ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("user_id", "role_id", name="pk_user_roles"),
     )
 
@@ -111,9 +131,14 @@ def upgrade() -> None:
         "role_permissions",
         sa.Column("role_id", UUID, nullable=False),
         sa.Column("permission_id", UUID, nullable=False),
-        sa.ForeignKeyConstraint(["role_id"], ["roles.id"], name="fk_role_permissions_role_id_roles", ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
-            ["permission_id"], ["permissions.id"], name="fk_role_permissions_permission_id_permissions", ondelete="CASCADE"
+            ["role_id"], ["roles.id"], name="fk_role_permissions_role_id_roles", ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["permission_id"],
+            ["permissions.id"],
+            name="fk_role_permissions_permission_id_permissions",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("role_id", "permission_id", name="pk_role_permissions"),
     )
@@ -128,10 +153,17 @@ def upgrade() -> None:
         sa.Column("replaced_by_id", UUID, nullable=True),
         sa.Column("user_agent", sa.String(500), nullable=True),
         sa.Column("ip_address", sa.String(64), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name="fk_refresh_tokens_user_id_users", ondelete="CASCADE"),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.ForeignKeyConstraint(
-            ["replaced_by_id"], ["refresh_tokens.id"], name="fk_refresh_tokens_replaced_by_id_refresh_tokens", ondelete="SET NULL"
+            ["user_id"], ["users.id"], name="fk_refresh_tokens_user_id_users", ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["replaced_by_id"],
+            ["refresh_tokens.id"],
+            name="fk_refresh_tokens_replaced_by_id_refresh_tokens",
+            ondelete="SET NULL",
         ),
         sa.PrimaryKeyConstraint("id", name="pk_refresh_tokens"),
         sa.UniqueConstraint("token_hash", name="uq_refresh_tokens_token_hash"),
@@ -148,10 +180,17 @@ def upgrade() -> None:
         sa.Column("base_currency_code", sa.String(3), nullable=False),
         sa.Column("timezone", sa.String(64), nullable=False, server_default="UTC"),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.ForeignKeyConstraint(
-            ["base_currency_code"], ["currencies.currency_code"], name="fk_companies_base_currency_code_currencies", ondelete="RESTRICT"
+            ["base_currency_code"],
+            ["currencies.currency_code"],
+            name="fk_companies_base_currency_code_currencies",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name="pk_companies"),
     )
@@ -170,26 +209,49 @@ def upgrade() -> None:
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("is_postable", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("description", sa.String(500), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_chart_of_accounts_company_id_companies", ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(
-            ["currency_code"], ["currencies.currency_code"], name="fk_chart_of_accounts_currency_code_currencies", ondelete="RESTRICT"
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
         ),
         sa.ForeignKeyConstraint(
-            ["parent_account_id"], ["chart_of_accounts.id"], name="fk_chart_of_accounts_parent_account_id_chart_of_accounts", ondelete="RESTRICT"
+            ["company_id"],
+            ["companies.id"],
+            name="fk_chart_of_accounts_company_id_companies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["currency_code"],
+            ["currencies.currency_code"],
+            name="fk_chart_of_accounts_currency_code_currencies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["parent_account_id"],
+            ["chart_of_accounts.id"],
+            name="fk_chart_of_accounts_parent_account_id_chart_of_accounts",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name="pk_chart_of_accounts"),
-        sa.UniqueConstraint("company_id", "account_number", name="uq_chart_of_accounts_company_number"),
+        sa.UniqueConstraint(
+            "company_id", "account_number", name="uq_chart_of_accounts_company_number"
+        ),
         sa.CheckConstraint("id <> parent_account_id", name="ck_chart_of_accounts_parent_not_self"),
-        sa.CheckConstraint("length(trim(account_number)) > 0", name="ck_chart_of_accounts_account_number_not_blank"),
+        sa.CheckConstraint(
+            "length(trim(account_number)) > 0", name="ck_chart_of_accounts_account_number_not_blank"
+        ),
         sa.CheckConstraint(
             "account_type IN ('ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE')",
             name="ck_chart_of_accounts_account_type",
         ),
-        sa.CheckConstraint("normal_balance IN ('DEBIT', 'CREDIT')", name="ck_chart_of_accounts_normal_balance"),
+        sa.CheckConstraint(
+            "normal_balance IN ('DEBIT', 'CREDIT')", name="ck_chart_of_accounts_normal_balance"
+        ),
     )
-    op.create_index("ix_chart_of_accounts_company_type", "chart_of_accounts", ["company_id", "account_type"])
+    op.create_index(
+        "ix_chart_of_accounts_company_type", "chart_of_accounts", ["company_id", "account_type"]
+    )
     op.create_index("ix_chart_of_accounts_parent", "chart_of_accounts", ["parent_account_id"])
 
     # ------------------------------------------------------------ fiscal periods
@@ -205,14 +267,33 @@ def upgrade() -> None:
         sa.Column("is_closed", sa.Boolean(), nullable=False, server_default=sa.false()),
         sa.Column("closed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("closed_by", UUID, nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_fiscal_periods_company_id_companies", ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["closed_by"], ["users.id"], name="fk_fiscal_periods_closed_by_users", ondelete="SET NULL"),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["company_id"],
+            ["companies.id"],
+            name="fk_fiscal_periods_company_id_companies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["closed_by"],
+            ["users.id"],
+            name="fk_fiscal_periods_closed_by_users",
+            ondelete="SET NULL",
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_fiscal_periods"),
-        sa.UniqueConstraint("company_id", "period_name", "fiscal_year", name="uq_fiscal_periods_company_name_year"),
+        sa.UniqueConstraint(
+            "company_id", "period_name", "fiscal_year", name="uq_fiscal_periods_company_name_year"
+        ),
         sa.CheckConstraint("start_date <= end_date", name="ck_fiscal_periods_date_order"),
-        sa.CheckConstraint("fiscal_year >= 1900 AND fiscal_year <= 9999", name="ck_fiscal_periods_fiscal_year_range"),
+        sa.CheckConstraint(
+            "fiscal_year >= 1900 AND fiscal_year <= 9999",
+            name="ck_fiscal_periods_fiscal_year_range",
+        ),
         sa.CheckConstraint(
             "status IN ('OPEN', 'CLOSED', 'ADJUSTING', 'LOCKED')",
             name="ck_fiscal_periods_status",
@@ -223,8 +304,14 @@ def upgrade() -> None:
             name="ck_fiscal_periods_is_closed_matches_status",
         ),
     )
-    op.create_index("ix_fiscal_periods_company_dates", "fiscal_periods", ["company_id", "start_date", "end_date"])
-    op.create_index("ix_fiscal_periods_company_year", "fiscal_periods", ["company_id", "fiscal_year"])
+    op.create_index(
+        "ix_fiscal_periods_company_dates",
+        "fiscal_periods",
+        ["company_id", "start_date", "end_date"],
+    )
+    op.create_index(
+        "ix_fiscal_periods_company_year", "fiscal_periods", ["company_id", "fiscal_year"]
+    )
 
     # Two periods of the same company may not cover the same day. An
     # application check alone would lose a concurrent-insert race.
@@ -251,11 +338,23 @@ def upgrade() -> None:
         sa.Column("effective_from", sa.Date(), nullable=False),
         sa.Column("effective_to", sa.Date(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_tax_codes_company_id_companies", ondelete="RESTRICT"),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.ForeignKeyConstraint(
-            ["tax_account_id"], ["chart_of_accounts.id"], name="fk_tax_codes_tax_account_id_chart_of_accounts", ondelete="RESTRICT"
+            ["company_id"],
+            ["companies.id"],
+            name="fk_tax_codes_company_id_companies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["tax_account_id"],
+            ["chart_of_accounts.id"],
+            name="fk_tax_codes_tax_account_id_chart_of_accounts",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name="pk_tax_codes"),
         sa.UniqueConstraint("company_id", "tax_code", name="uq_tax_codes_company_code"),
@@ -275,10 +374,22 @@ def upgrade() -> None:
         sa.Column("document_type", sa.String(32), nullable=False),
         sa.Column("fiscal_year", sa.Integer(), nullable=False),
         sa.Column("next_number", sa.BigInteger(), nullable=False, server_default="1"),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_document_sequences_company_id_companies", ondelete="CASCADE"),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["company_id"],
+            ["companies.id"],
+            name="fk_document_sequences_company_id_companies",
+            ondelete="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_document_sequences"),
-        sa.UniqueConstraint("company_id", "document_type", "fiscal_year", name="uq_document_sequences_company_type_year"),
+        sa.UniqueConstraint(
+            "company_id",
+            "document_type",
+            "fiscal_year",
+            name="uq_document_sequences_company_type_year",
+        ),
         sa.CheckConstraint("next_number >= 1", name="ck_document_sequences_next_number_positive"),
     )
 
@@ -305,21 +416,59 @@ def upgrade() -> None:
         sa.Column("reverses_entry_id", UUID, nullable=True),
         sa.Column("created_by", UUID, nullable=True),
         sa.Column("updated_by", UUID, nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_journal_entries_company_id_companies", ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["period_id"], ["fiscal_periods.id"], name="fk_journal_entries_period_id_fiscal_periods", ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(
-            ["currency_code"], ["currencies.currency_code"], name="fk_journal_entries_currency_code_currencies", ondelete="RESTRICT"
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
         ),
-        sa.ForeignKeyConstraint(["posted_by"], ["users.id"], name="fk_journal_entries_posted_by_users", ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(["created_by"], ["users.id"], name="fk_journal_entries_created_by_users", ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(["updated_by"], ["users.id"], name="fk_journal_entries_updated_by_users", ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(
-            ["reversed_by_entry_id"], ["journal_entries.id"], name="fk_journal_entries_reversed_by_entry_id_journal_entries", ondelete="RESTRICT"
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
         ),
         sa.ForeignKeyConstraint(
-            ["reverses_entry_id"], ["journal_entries.id"], name="fk_journal_entries_reverses_entry_id_journal_entries", ondelete="RESTRICT"
+            ["company_id"],
+            ["companies.id"],
+            name="fk_journal_entries_company_id_companies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["period_id"],
+            ["fiscal_periods.id"],
+            name="fk_journal_entries_period_id_fiscal_periods",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["currency_code"],
+            ["currencies.currency_code"],
+            name="fk_journal_entries_currency_code_currencies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["posted_by"],
+            ["users.id"],
+            name="fk_journal_entries_posted_by_users",
+            ondelete="SET NULL",
+        ),
+        sa.ForeignKeyConstraint(
+            ["created_by"],
+            ["users.id"],
+            name="fk_journal_entries_created_by_users",
+            ondelete="SET NULL",
+        ),
+        sa.ForeignKeyConstraint(
+            ["updated_by"],
+            ["users.id"],
+            name="fk_journal_entries_updated_by_users",
+            ondelete="SET NULL",
+        ),
+        sa.ForeignKeyConstraint(
+            ["reversed_by_entry_id"],
+            ["journal_entries.id"],
+            name="fk_journal_entries_reversed_by_entry_id_journal_entries",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["reverses_entry_id"],
+            ["journal_entries.id"],
+            name="fk_journal_entries_reverses_entry_id_journal_entries",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name="pk_journal_entries"),
         sa.UniqueConstraint("company_id", "entry_number", name="uq_journal_entries_company_number"),
@@ -343,13 +492,23 @@ def upgrade() -> None:
             name="ck_journal_entries_idempotency_pair",
         ),
         sa.CheckConstraint("version >= 1", name="ck_journal_entries_version_positive"),
-        sa.CheckConstraint("id <> reversed_by_entry_id", name="ck_journal_entries_not_self_reversed"),
+        sa.CheckConstraint(
+            "id <> reversed_by_entry_id", name="ck_journal_entries_not_self_reversed"
+        ),
         sa.CheckConstraint("id <> reverses_entry_id", name="ck_journal_entries_not_self_reversal"),
     )
-    op.create_index("ix_journal_entries_company_date", "journal_entries", ["company_id", "entry_date"])
-    op.create_index("ix_journal_entries_company_status", "journal_entries", ["company_id", "status"])
+    op.create_index(
+        "ix_journal_entries_company_date", "journal_entries", ["company_id", "entry_date"]
+    )
+    op.create_index(
+        "ix_journal_entries_company_status", "journal_entries", ["company_id", "status"]
+    )
     op.create_index("ix_journal_entries_period", "journal_entries", ["period_id"])
-    op.create_index("ix_journal_entries_source", "journal_entries", ["company_id", "source_type", "source_document"])
+    op.create_index(
+        "ix_journal_entries_source",
+        "journal_entries",
+        ["company_id", "source_type", "source_document"],
+    )
     op.create_index(
         "uq_journal_entries_company_idempotency_key",
         "journal_entries",
@@ -377,17 +536,42 @@ def upgrade() -> None:
         sa.Column("currency_code", sa.String(3), nullable=False),
         sa.Column("tax_id", UUID, nullable=True),
         sa.Column("memo", sa.String(500), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["entry_id"], ["journal_entries.id"], name="fk_journal_items_entry_id_journal_entries", ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_journal_items_company_id_companies", ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(
-            ["account_id"], ["chart_of_accounts.id"], name="fk_journal_items_account_id_chart_of_accounts", ondelete="RESTRICT"
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
         ),
         sa.ForeignKeyConstraint(
-            ["currency_code"], ["currencies.currency_code"], name="fk_journal_items_currency_code_currencies", ondelete="RESTRICT"
+            ["entry_id"],
+            ["journal_entries.id"],
+            name="fk_journal_items_entry_id_journal_entries",
+            ondelete="CASCADE",
         ),
-        sa.ForeignKeyConstraint(["tax_id"], ["tax_codes.id"], name="fk_journal_items_tax_id_tax_codes", ondelete="RESTRICT"),
+        sa.ForeignKeyConstraint(
+            ["company_id"],
+            ["companies.id"],
+            name="fk_journal_items_company_id_companies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["account_id"],
+            ["chart_of_accounts.id"],
+            name="fk_journal_items_account_id_chart_of_accounts",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["currency_code"],
+            ["currencies.currency_code"],
+            name="fk_journal_items_currency_code_currencies",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["tax_id"],
+            ["tax_codes.id"],
+            name="fk_journal_items_tax_id_tax_codes",
+            ondelete="RESTRICT",
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_journal_items"),
         sa.UniqueConstraint("entry_id", "line_number", name="uq_journal_items_entry_line"),
         # The double-entry invariants, enforced by the database itself.
@@ -415,18 +599,40 @@ def upgrade() -> None:
         sa.Column("total_debits", MONEY, nullable=False, server_default="0"),
         sa.Column("total_credits", MONEY, nullable=False, server_default="0"),
         sa.Column("closing_balance", MONEY, nullable=False, server_default="0"),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_ledger_balances_company_id_companies", ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(
-            ["account_id"], ["chart_of_accounts.id"], name="fk_ledger_balances_account_id_chart_of_accounts", ondelete="RESTRICT"
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
         ),
-        sa.ForeignKeyConstraint(["period_id"], ["fiscal_periods.id"], name="fk_ledger_balances_period_id_fiscal_periods", ondelete="RESTRICT"),
         sa.ForeignKeyConstraint(
-            ["currency_code"], ["currencies.currency_code"], name="fk_ledger_balances_currency_code_currencies", ondelete="RESTRICT"
+            ["company_id"],
+            ["companies.id"],
+            name="fk_ledger_balances_company_id_companies",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("company_id", "account_id", "period_id", "currency_code", name="pk_ledger_balances"),
+        sa.ForeignKeyConstraint(
+            ["account_id"],
+            ["chart_of_accounts.id"],
+            name="fk_ledger_balances_account_id_chart_of_accounts",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["period_id"],
+            ["fiscal_periods.id"],
+            name="fk_ledger_balances_period_id_fiscal_periods",
+            ondelete="RESTRICT",
+        ),
+        sa.ForeignKeyConstraint(
+            ["currency_code"],
+            ["currencies.currency_code"],
+            name="fk_ledger_balances_currency_code_currencies",
+            ondelete="RESTRICT",
+        ),
+        sa.PrimaryKeyConstraint(
+            "company_id", "account_id", "period_id", "currency_code", name="pk_ledger_balances"
+        ),
     )
-    op.create_index("ix_ledger_balances_company_period", "ledger_balances", ["company_id", "period_id"])
+    op.create_index(
+        "ix_ledger_balances_company_period", "ledger_balances", ["company_id", "period_id"]
+    )
     op.create_index("ix_ledger_balances_account", "ledger_balances", ["account_id"])
 
     # --------------------------------------------------------------- audit logs
@@ -438,13 +644,24 @@ def upgrade() -> None:
         sa.Column("action", sa.String(64), nullable=False),
         sa.Column("entity_type", sa.String(64), nullable=False),
         sa.Column("entity_id", sa.String(64), nullable=True),
-        sa.Column("payload", postgresql.JSONB(astext_type=sa.Text()), nullable=False, server_default="{}"),
+        sa.Column(
+            "payload", postgresql.JSONB(astext_type=sa.Text()), nullable=False, server_default="{}"
+        ),
         sa.Column("ip_address", postgresql.INET(), nullable=True),
         sa.Column("user_agent", sa.String(500), nullable=True),
         sa.Column("request_id", sa.String(64), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(["company_id"], ["companies.id"], name="fk_audit_logs_company_id_companies", ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name="fk_audit_logs_user_id_users", ondelete="SET NULL"),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["company_id"],
+            ["companies.id"],
+            name="fk_audit_logs_company_id_companies",
+            ondelete="SET NULL",
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], name="fk_audit_logs_user_id_users", ondelete="SET NULL"
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_audit_logs"),
     )
     op.create_index("ix_audit_logs_created_at", "audit_logs", ["created_at"])
@@ -461,12 +678,16 @@ def upgrade() -> None:
         sa.Column("aggregate_type", sa.String(64), nullable=False),
         sa.Column("aggregate_id", UUID, nullable=False),
         sa.Column("company_id", UUID, nullable=True),
-        sa.Column("payload", postgresql.JSONB(astext_type=sa.Text()), nullable=False, server_default="{}"),
+        sa.Column(
+            "payload", postgresql.JSONB(astext_type=sa.Text()), nullable=False, server_default="{}"
+        ),
         sa.Column("status", sa.String(16), nullable=False, server_default="PENDING"),
         sa.Column("attempts", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("last_error", sa.String(1000), nullable=True),
         sa.Column("processed_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_outbox_events"),
         sa.CheckConstraint(
             "status IN ('PENDING', 'PROCESSING', 'PROCESSED', 'FAILED')",
@@ -480,7 +701,9 @@ def upgrade() -> None:
         ["created_at"],
         postgresql_where=sa.text("status = 'PENDING'"),
     )
-    op.create_index("ix_outbox_events_aggregate", "outbox_events", ["aggregate_type", "aggregate_id"])
+    op.create_index(
+        "ix_outbox_events_aggregate", "outbox_events", ["aggregate_type", "aggregate_id"]
+    )
 
 
 def downgrade() -> None:
